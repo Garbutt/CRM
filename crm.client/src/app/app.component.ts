@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 
-interface WeatherForecast {
-  date: string;
-  temperatureC: number;
-  temperatureF: number;
-  summary: string;
+interface User{
+  name: string;
+  email: string;
+  password: string;
 }
 
 @Component({
@@ -13,24 +12,24 @@ interface WeatherForecast {
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
-  public forecasts: WeatherForecast[] = [];
+export class AppComponent{
+  public user : User = {name: "", email: "", password: ""}
 
   constructor(private http: HttpClient) {}
 
-  ngOnInit() {
-    this.getForecasts();
-  }
 
-  getForecasts() {
-    this.http.get<WeatherForecast[]>('/weatherforecast').subscribe(
-      (result) => {
-        this.forecasts = result;
+
+  registerUser(){
+    this.http.post('/api/user/signup', this.user).subscribe({
+      next:(response) =>{
+        console.log('Registration successful', response);
+        alert('Registration successful!');
       },
-      (error) => {
-        console.error(error);
+      error:(error) => {
+        console.error('Registration failed', error);
+        alert('Registration failed. Please try again.');
       }
-    );
+  });
   }
 
   title = 'crm.client';

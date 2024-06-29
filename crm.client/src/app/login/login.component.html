@@ -1,0 +1,27 @@
+
+<div *ngIf="!loginComplete" class = "account-form">
+
+    <h1>Login Form</h1>
+
+<form #loginForm="ngForm" (ngSubmit)="loginUser()">
+    
+    <div class="form-layout">
+
+     <label for="email">Email:</label><br>
+     <input type="email" id="email" [(ngModel)]="user.email" name="email" required><br>
+     
+     <label for="password">Password:</label><br>
+     <input type="password" id="password" [(ngModel)]="user.password" name="password" required><br>
+     
+     <button type="submit">Login</button>
+     <a routerLink = "/register">Don't have an account? Register here.</a>
+    
+    </div>
+</form>
+</div>
+
+<div *ngIf= "loginError" class="error">
+    {{loginError}}
+</div>
+
+

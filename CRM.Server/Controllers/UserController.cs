@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Mail;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 
 
@@ -15,13 +16,15 @@ namespace CRM.Server.Controllers
     {
         private readonly CMSDbContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<UserController> _logger;
 
         Response response = new Response();
 
-        public UserController(CMSDbContext context, IWebHostEnvironment environment)
+        public UserController(CMSDbContext context, IWebHostEnvironment environment, ILogger<UserController> logger)
         {
             _context = context;
             _environment = environment;
+            _logger = logger;
         }
 
         [HttpPost, Route("signup")]
@@ -51,26 +54,34 @@ namespace CRM.Server.Controllers
         }
 
         [HttpPost, Route("login")]
-        public IActionResult Login([FromBody] User user)
+        public IActionResult Login([FromBody] LoginRequest loginRequest)
         {
             try
             {
                 User userObj = _context.Users
-                    .Where(u => (u.email == user.email) && (u.password == user.password)).FirstOrDefault();
+                    .Where(u => (u.email == loginRequest.email) && (u.password == loginRequest.password)).FirstOrDefault();
                 if (userObj != null)
                 {
-                    if (userObj.status == "true")
+                    switch (userObj.status) 
                     {
-                        return Ok(new { token = TokenManager.GenerateToken(userObj.email, userObj.role) });
-                    }
-                    else
-                    {
-                        return Unauthorized(new { message = "Wait for Admin approval" });
+                        case "true":
+                            return Ok(new
+                            {
+                                token = TokenManager.GenerateToken(userObj.email, userObj.role),
+                                status = "true"
+                            });
+                        case "false":
+                            return Ok(new
+                            {
+                                status = "false"
+                            });
+                        default:
+                            return Ok(new { status = "unkown" });
                     }
                 }
                 else
                 {
-                    return Unauthorized( new { message = "Incorrect email or password" });
+                    return Unauthorized(new { message = "Incorrect email or password" });
                 }
             }
             catch (Exception ex)
@@ -92,28 +103,50 @@ namespace CRM.Server.Controllers
         {
             try
             {
-                var token = Request.Headers["authorization"].First();
-                TokenClaim tokenClaim = TokenManager.ValidateToken(token);
+
+                string? authorizationHeader = Request.Headers["authorization"].FirstOrDefault();
+
+                if (string.IsNullOrEmpty(authorizationHeader))
+                {
+                    _logger.LogError("Headers are empty");
+                    return Unauthorized(new { message = "Headers are empty" });
+                }
+
+             if(!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogError("Token does not start with bearer");
+                    return Unauthorized(new { message = "Token does not start with bearer" });
+                }
+
+             var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+                TokenClaim tokenClaim = TokenManager.ValidateToken(token, _logger);
+
+                if(tokenClaim == null)
+                {
+                    _logger.LogError("Token is null here.");
+                    return Unauthorized(new { message = "Invalid token" });
+                }
+
                 if (tokenClaim.role != "admin")
                 {
-                    return Unauthorized();
+                    _logger.LogError("Admin role required to get all users.");
+                    return Unauthorized(new { message = "Admin role required" });
                 }
-                var result = _context.Users
-                    .Select(u => new
-                    {
-                        u.Id,
-                        u.name,
-                        u.contactNumber,
-                        u.email,
-                        u.status,
-                        u.role
-                    })
-                .Where(x => (x.role == "user"))
-                .ToList();
-                return Ok( result);
+
+                var users = _context.Users.ToList();
+                _logger.LogInformation($"Fetched {users.Count} users from database");
+
+                if (!users.Any())
+                {
+                    return NotFound(new { message = "No users found" });
+                }
+
+                return Ok(users);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error while fetching users from database");
                 return StatusCode(500, ex.Message);
             }
         }
@@ -125,7 +158,7 @@ namespace CRM.Server.Controllers
             try
             {
                 var token = Request.Headers["authorization"].First();
-                TokenClaim tokenClaim = TokenManager.ValidateToken(token);
+                TokenClaim tokenClaim = TokenManager.ValidateToken(token, _logger);
                 if (tokenClaim.role != "admin")
                 {
                     return Unauthorized();
@@ -154,11 +187,68 @@ namespace CRM.Server.Controllers
         {
             try
             {
-                var token = Request.Headers["authorization"].First();
-                TokenClaim tokenClaim = TokenManager.ValidateToken(token);
+                string? authorizationHeader = Request.Headers["authorization"].First();
+
+                if (string.IsNullOrEmpty(authorizationHeader))
+                {
+                    _logger.LogError("Headers are empty");
+                    return Unauthorized(new { message = "Headers are empty" });
+                }
+
+                if (!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogError("Token does not start with bearer uc");
+                    return Unauthorized(new { message = "Token does not start with bearer" });
+                }
+
+                var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+                TokenClaim tokenClaim = TokenManager.ValidateToken(token, _logger);
+
+                if (tokenClaim == null)
+                {
+                    _logger.LogError("Token is null here.");
+                    return Unauthorized(new { message = "Invalid token" });
+                }
+
+                _logger.LogInformation($"{tokenClaim.email}");
+
+
+                var userEmail = tokenClaim.email;
 
                 User userObj = _context.Users
-                    .Where(x => (x.email == tokenClaim.email && x.password == changePassword.OldPassword)).FirstOrDefault();
+                    .AsEnumerable()
+                    .FirstOrDefault(x => x.email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
+                _logger.LogInformation($"Email: {userEmail}, obj: {userObj}");
+
+                if (userObj == null)
+                {
+                    _logger.LogError($"User not found with email: {userEmail}");
+                    return NotFound(new { message = "User not found" });
+                }
+
+                if(string.IsNullOrEmpty(changePassword.OldPassword))
+                {
+                    _logger.LogError("Old password is empty");
+                    response.Message = "Old password is empty";
+                    return BadRequest(response);
+                }
+
+                if(string.IsNullOrEmpty(changePassword.NewPassword))
+                {
+                    _logger.LogError("New password is empty");
+                    response.Message = "New password is empty";
+                    return BadRequest(response);
+                }
+
+                if(changePassword.NewPassword != changePassword.OldPassword)
+                {
+                    _logger.LogError("Incorrect old password");
+                    response.Message = "Incorrect old password.");
+                    return BadRequest(response);
+                }
+
                 if (userObj != null)
                 {
                     userObj.password = changePassword.NewPassword;
@@ -167,15 +257,11 @@ namespace CRM.Server.Controllers
                     response.Message = "Password changed successfully";
                     return Ok(response);
                 }
-                else
-                {
-                    response.Message = "Incorrect old password";
-                    return BadRequest(response);
-                }
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                _logger.LogError($"Error while changing password: {ex.Message}");
+                return StatusCode(500, "An error occured while processing your request.");
             }
         }
 

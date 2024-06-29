@@ -1,0 +1,13 @@
+.users{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+li{
+    background-color: blue;
+    text-decoration: none;
+    color: white;
+    border: solid 2px black;
+    padding: 10px;
+}

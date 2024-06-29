@@ -53,13 +53,19 @@ namespace CRM.Server
             }
         }
 
-        public static TokenClaim ValidateToken(string RawToken)
+        public static TokenClaim ValidateToken(string token, ILogger logger)
         {
-            string[] array = RawToken.Split(' ');
-            var token = array[1];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                logger.LogError("Token is empty ");
+                return null;
+            }
+
             ClaimsPrincipal principal = GetPrincipal(token);
             if (principal == null)
             {
+                logger.LogWarning("Principal is null");
                 return null;
             }
             ClaimsIdentity identity = null;
@@ -69,14 +75,25 @@ namespace CRM.Server
             }
             catch (Exception ex)
             {
+                logger.LogError("Identity is null");
                 return null;
             }
-
+            // Initialize new TokenClaim object
             TokenClaim tokenClaim = new TokenClaim();
-            var temp = identity.FindFirst(ClaimTypes.Email);
-            tokenClaim.email = temp.Value;
-            temp = identity.FindFirst(ClaimTypes.Role);
-            tokenClaim.role = temp.Value;
+            
+            var emailClaim = identity.FindFirst(ClaimTypes.Email);
+            var roleClaim = identity.FindFirst(ClaimTypes.Role);
+           
+            if(emailClaim != null && roleClaim != null)
+            {
+                tokenClaim.email = emailClaim.Value;
+                tokenClaim.role = roleClaim.Value;
+            }
+            else
+            {
+                logger.LogWarning("Email or role claim is null");
+                return null;
+            }
             return tokenClaim;
         }
     }

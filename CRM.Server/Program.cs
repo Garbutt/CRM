@@ -1,5 +1,6 @@
 using CRM.Server;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using  Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,13 @@ var app = builder.Build();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/uploads"
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

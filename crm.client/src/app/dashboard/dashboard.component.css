@@ -1,3 +1,36 @@
-h1{
-    color:green;
+.page-wrapper{
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
 }
+
+button{
+    margin: .5em 2em;
+    width: 100%;
+}
+
+.controls{
+    float: left;
+    align-items: flex-start;
+    background-color: var(--dark-bg);
+}
+
+.controls div{
+    width: auto;
+    display: flex;
+    align-items: center;
+    margin: 2em 0;;
+}
+
+.controls h2{
+    color: var(--text-light);
+    text-align: center;
+    padding: 2em 0 0 0 ;
+}
+
+.router{
+    height: 100%;
+    width: 100%;
+}
+

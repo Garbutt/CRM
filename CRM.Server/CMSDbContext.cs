@@ -11,5 +11,6 @@ namespace CRM.Server
 
         public DbSet<User> Users { get; set; }
         public DbSet<GetUser> GetUser { get; set; }
+        public DbSet<Sites> Sites { get; set; }
     }
 }

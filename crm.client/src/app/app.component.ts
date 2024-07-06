@@ -1,6 +1,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router'
+import { PrimeNGConfig } from 'primeng/api';
 
 
 
@@ -10,9 +11,13 @@ import { Router } from '@angular/router'
   styleUrl: './app.component.css'
 })
 
-export class AppComponent{
+export class AppComponent implements OnInit{
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private primeConfig: PrimeNGConfig) {}
+
+  ngOnInit() {
+    this.primeConfig.ripple = true;
+  }
 
  title = 'G&D'
 

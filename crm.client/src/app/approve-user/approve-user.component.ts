@@ -18,13 +18,15 @@ export interface GetUsers{
 export class ApproveUserComponent {
   users: GetUsers[] = [];
 
+  successClass = 'success';
+  pendingClass = 'pending';
+
   constructor(private httpClient: HttpClient){}
   
-  
+
   ngOnInit(){
     const token = localStorage.getItem('token');
     console.log('Retrieved token:', token);
-
 
     if(token){
 
@@ -46,7 +48,11 @@ export class ApproveUserComponent {
   }
 
   getApprovalStatus(status: string): string {
-    return status === "true" ? "Approved" : "Pending";
+    return status === "true" ? 'Approved' : 'pending';
+  }
+
+  getStatusClass(status: string): string{
+    return status ==="true" ? 'success' : 'pending';
   }
 
 }

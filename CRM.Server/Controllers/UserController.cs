@@ -5,6 +5,7 @@ using System.Net.Mail;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using System.Security.Policy;
 
 
 
@@ -183,7 +184,7 @@ namespace CRM.Server.Controllers
 
         [HttpPost, Route("changePassword")]
         [CustomAuthenticationFilter]
-        public IActionResult ChangePassword(ChangePassword changePassword)
+        public IActionResult ChangePassword([FromBody]ChangePassword changePassword)
         {
             try
             {
@@ -220,8 +221,6 @@ namespace CRM.Server.Controllers
                     .AsEnumerable()
                     .FirstOrDefault(x => x.email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
-                _logger.LogInformation($"Email: {userEmail}, obj: {userObj}");
-
                 if (userObj == null)
                 {
                     _logger.LogError($"User not found with email: {userEmail}");
@@ -242,21 +241,18 @@ namespace CRM.Server.Controllers
                     return BadRequest(response);
                 }
 
-                if(changePassword.NewPassword != changePassword.OldPassword)
+                if(userObj.password != changePassword.OldPassword)
                 {
                     _logger.LogError("Incorrect old password");
-                    response.Message = "Incorrect old password.");
+                    response.Message = "Incorrect old password.";
                     return BadRequest(response);
                 }
 
-                if (userObj != null)
-                {
                     userObj.password = changePassword.NewPassword;
                     _context.Entry(userObj).State = EntityState.Modified;
                     _context.SaveChanges();
                     response.Message = "Password changed successfully";
                     return Ok(response);
-                }
             }
             catch (Exception ex)
             {
@@ -286,9 +282,12 @@ namespace CRM.Server.Controllers
             }
         }
 
+        // Forgot
+
         [HttpPost, Route("forgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] User user)
         {
+
             User userObj = _context.Users
                 .Where(x => x.email == user.email).FirstOrDefault();
             response.Message = "Password sent to your email successfully";
@@ -308,5 +307,7 @@ namespace CRM.Server.Controllers
             }
             return Ok(response);
         }
+
+        
     }
 }

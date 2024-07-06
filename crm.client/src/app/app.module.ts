@@ -2,6 +2,17 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+
+
+// For prime ng modules
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { TableModule } from 'primeng/table';
+import { Button } from 'primeng/button';
+import { DataViewModule } from 'primeng/dataview';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -13,6 +24,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { ApproveUserComponent } from './approve-user/approve-user.component';
+import { AllSitesComponent } from './all-sites/all-sites.component';
 
 @NgModule({
   declarations: [
@@ -24,11 +36,18 @@ import { ApproveUserComponent } from './approve-user/approve-user.component';
     DashboardComponent,
     LandingPageComponent,
     ApproveUserComponent,
+    AllSitesComponent,
   ],
   imports: [
     BrowserModule, 
+    BrowserAnimationsModule,
     FormsModule,
     AppRoutingModule,
+    CommonModule,
+    FloatLabelModule,
+    TableModule,
+    Button,
+    DataViewModule
   ],
   providers: [provideHttpClient(withInterceptorsFromDi())],
   bootstrap: [AppComponent]

@@ -1,0 +1,16 @@
+.account-form{
+    background-image: url("../../assets/G&D.JPG");
+    background-position: center;
+    background-size: cover;
+    height: 100%;
+}
+
+h1{
+    color: var(--light-bg);
+}
+
+.error{
+    color: var(--error);
+    text-align: center;
+    font-size: 25px;
+}

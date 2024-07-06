@@ -1,0 +1,55 @@
+<div class="add-site">
+
+    <form action="search" class="search-site">
+        <input type="text" placeholder="Search for a site...">
+        <button type="submit">Search</button>
+    </form>
+
+    <button (click) ="toggleFormVisibility()">
+        Add Site
+    </button>
+</div>
+
+<form class="add-site-form" *ngIf="isFormVisible" #siteForm="ngForm" (ngSubmit)="addSite(siteForm)">
+    
+    
+    <div class="form-layout">
+
+     <label for="name">Site name:</label><br>
+     <input type="text" id="name" [(ngModel)]="newSite.name" name="name" required #siteName = "ngModel"><br>
+     <div *ngIf="siteName.invalid && siteName.touched" class="error">Site name is required</div>
+
+     <label for="address">Site address:</label><br>
+     <input type="text" id="address" [(ngModel)]="newSite.address" name="address" required #siteAddress="ngModel"><br>
+     <div *ngIf="siteAddress.invalid && siteAddress.touched" class="error">Site address is required</div>
+
+     <label for="image">Site image:</label>
+     <input type="file" id="image" (change)="onFileSelected($event)" #siteImage>
+     
+     <button type="submit">Add</button>
+    </div>
+    
+</form>
+
+<div class="container" *ngIf="!isFormVisible">
+    <div class="all-sites" *ngFor="let site of _getSites">
+        <article>
+            <img *ngIf="site.photoPath" [src]="site.photoPath" alt="Site image">
+            <div class="site-details">
+                <h2>{{site.name}}</h2>
+                <p>{{site.address}}</p>
+                <p [ngClass]="{
+                    'red-text': site.completion < 30,
+                    'yellow-text': site.completion >= 30 && site.completion < 70,
+                    'green-text': site.completion >= 70
+                }">{{site.completion}}% complete</p>
+            </div>
+            <div class="all-sites-button">
+                <button>View Site</button>
+            </div>
+        </article>
+    </div>    
+</div>
+
+
+

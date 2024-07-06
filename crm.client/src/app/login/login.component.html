@@ -1,9 +1,13 @@
 
 <div *ngIf="!loginComplete" class = "account-form">
 
-    <h1>Login Form</h1>
+    <h1>G&D Login</h1>
 
 <form #loginForm="ngForm" (ngSubmit)="loginUser()">
+    
+    <div *ngIf= "loginError" class="error">
+        {{loginError}}
+    </div>
     
     <div class="form-layout">
 
@@ -14,14 +18,11 @@
      <input type="password" id="password" [(ngModel)]="user.password" name="password" required><br>
      
      <button type="submit">Login</button>
-     <a routerLink = "/register">Don't have an account? Register here.</a>
-    
+     <a routerLink="/register">Don't have an account? Register here.</a>
     </div>
 </form>
 </div>
 
-<div *ngIf= "loginError" class="error">
-    {{loginError}}
-</div>
+
 
 

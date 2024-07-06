@@ -1,8 +1,18 @@
 <div class="users">
+    <div class="list-headers">
+        <span>Name:</span>
+        <span>Role:</span>
+        <span>Email:</span>
+        <span>Status:</span>
+        <span>Actions:</span>
+    </div>
     <ul>
         <li *ngFor="let user of users">
-            {{user.name}} : {{getApprovalStatus(user.status)}}
+            <div>{{user.name}}</div>
+            <div>{{user.role}}</div>
+            <div>{{user.email}}</div>
+            <div> <span [ngClass]="getStatusClass(user.status)">{{getApprovalStatus(user.status)}}</span></div>
+            <button>Manage</button>
         </li>
     </ul>
 </div>
-<P>Test</P>

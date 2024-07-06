@@ -1,3 +1,30 @@
-<div routerLink="/getAllUsers">
-    <button>Get users</button>
+<div class="page-wrapper">
+    <div class="controls">
+
+        <h2>G&D Dashboard</h2>
+    
+        <div routerLink="user/getAllUsers">
+            <button>Manage Users</button>
+        </div>
+        
+        <div routerLink="user/changePassword">
+            <button>My Account</button>
+        </div>
+        
+        <div routerLink="sites/getSite">
+            <button>Sites</button>
+        </div>
+        
+        <div routerLink="user/changePassword">
+            <button>Stock</button>
+        </div>
+        
+        
+        <div routerLink="user/changePassword">
+            <button>Change Password</button>
+        </div>
+    </div>
+    <div class="router">
+        <router-outlet></router-outlet>
+    </div>
 </div>

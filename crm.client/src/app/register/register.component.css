@@ -4,3 +4,13 @@
     text-align: center;
 }
 
+.account-form{
+    background-image: url("../../assets/G&D.JPG");
+    background-position: center;
+    background-size: cover;
+    height: 100%;
+}
+
+h1{
+    color: var(--light-bg);
+}

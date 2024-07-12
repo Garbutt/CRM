@@ -1,7 +1,7 @@
 ﻿using CRM.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using System.Web;
+using CRM.Server.Helpers;
 
 namespace CRM.Server.Controllers
 {
@@ -13,12 +13,14 @@ namespace CRM.Server.Controllers
         private readonly CMSDbContext _context;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<UserController> _logger;
+        private readonly isUserAdmin _isUserAdmin;
 
-        public SitesController(CMSDbContext context, IWebHostEnvironment environment, ILogger<UserController> logger)
+        public SitesController(CMSDbContext context, IWebHostEnvironment environment, ILogger<UserController> logger, isUserAdmin isUserAdmin)
         {
             _context = context;
             _environment = environment;
             _logger = logger;
+            _isUserAdmin = isUserAdmin;
         }
 
         [HttpPost, Route("addSite")]
@@ -215,36 +217,7 @@ namespace CRM.Server.Controllers
         {
             try
             {
-                string? authorizationHeader = Request.Headers["authorization"].FirstOrDefault();
-
-                if (string.IsNullOrEmpty(authorizationHeader))
-                {
-                    _logger.LogError("Headers are empty");
-                    return Unauthorized(new { message = "Headers are empty" });
-                }
-
-                if (!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogError("Token does not start with bearer");
-                    return Unauthorized(new { message = "Token does not start with bearer" });
-                }
-
-                var token = authorizationHeader.Substring("Bearer ".Length).Trim();
-
-                TokenClaim tokenClaim = TokenManager.ValidateToken(token, _logger);
-
-                if (tokenClaim == null)
-                {
-                    _logger.LogError("Token is null here.");
-                    return Unauthorized(new { message = "Invalid token" });
-                }
-
-                if (tokenClaim.role != "admin")
-                {
-                    _logger.LogError("Admin role required to add site.");
-                    return Unauthorized(new { message = "Admin role required" });
-                }
-
+                
                 var site = _context.Sites.FirstOrDefault(x => x.id == siteDTO.id);
 
                 if (site == null)
@@ -252,43 +225,68 @@ namespace CRM.Server.Controllers
                     return NotFound(new { message = "Site not found" });
                 }
 
-                if (siteDTO.PhotoFile != null && siteDTO.PhotoFile.Length > 0)
+                bool isAdmin = _isUserAdmin.checkAdmin();
+
+               if (!isAdmin)
                 {
-                    var uploadsDirectory = _environment.WebRootPath != null ?
-                                            Path.Combine(_environment.WebRootPath, "uploads") :
-                                            Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-
-                    if (!Directory.Exists(uploadsDirectory))
-                    {
-                        Directory.CreateDirectory(uploadsDirectory);
-                    }
-
-                    var fileName = Path.GetFileName(siteDTO.PhotoFile.FileName);
-                    var filePath = Path.Combine(uploadsDirectory, fileName);
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await siteDTO.PhotoFile.CopyToAsync(fileStream);
-                    }
-                    var relativePath = Path.Combine("uploads", fileName);
-
                     site.name = siteDTO.name;
                     site.address = siteDTO.address;
                     site.completion = siteDTO.completion;
-                    site.PhotoPath = relativePath;
+
+                    if (siteDTO.PhotoFile != null && siteDTO.PhotoFile.Length > 0)
+                    { 
+                        site.PhotoPath = adjustPhotoPath(site.PhotoPath);
+                    }
+                }
+                else
+                {
+                    site.completion = siteDTO.completion;
+                }
+                   
 
                     _context.Sites.Update(site);
                     await _context.SaveChangesAsync();
                     return Ok(new { message = "Site updated successfully" });
-                }
-                else
-                {
-                    return BadRequest(new { message = "Image file is null" });
-                }
             }
             catch (JsonException jsonEx)
             {
                 _logger.LogError(jsonEx, "Error deserializing the site object");
                 return BadRequest(jsonEx);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Error updating site");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpGet("~/api/sites/getSite/{id}")]
+        public async Task<ActionResult<SiteDTO>> GetSiteById(int id)
+        {
+            try
+            {
+                var site = await _context.Sites.FindAsync(id);
+
+                if (site == null)
+                {
+                    return NotFound(new { message = "Site not found" });
+                }
+
+                var sites = new Sites
+                {
+                    id = site.id,
+                    name = site.name,
+                    address = site.address,
+                    completion = site.completion,
+                    PhotoPath = adjustPhotoPath(site.PhotoPath)
+                };
+
+                return Ok(sites);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving site by id");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
     }

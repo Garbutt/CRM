@@ -2,11 +2,14 @@ using CRM.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using  Microsoft.Extensions.Logging;
+using CRM.Server.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<isUserAdmin>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

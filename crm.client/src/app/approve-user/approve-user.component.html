@@ -1,18 +1,32 @@
-<div class="users">
-    <div class="list-headers">
-        <span>Name:</span>
-        <span>Role:</span>
-        <span>Email:</span>
-        <span>Status:</span>
-        <span>Actions:</span>
-    </div>
-    <ul>
-        <li *ngFor="let user of users">
-            <div>{{user.name}}</div>
-            <div>{{user.role}}</div>
-            <div>{{user.email}}</div>
-            <div> <span [ngClass]="getStatusClass(user.status)">{{getApprovalStatus(user.status)}}</span></div>
-            <button>Manage</button>
-        </li>
-    </ul>
+<div class="component-actions">
+
+    <form action="search" class="search">
+        <input type="text" placeholder="Search Users...">
+        <button>Search</button>
+    </form>
+
 </div>
+    <div class="card">
+        <p-table 
+            [value]="users" 
+            styleClass="p-datatable-gridlines" 
+            [tableStyle]="{ 'min-width': '50rem' }">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-user>
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.status }}</td>
+                    </tr>
+                </ng-template>
+        </p-table>
+    </div>
+

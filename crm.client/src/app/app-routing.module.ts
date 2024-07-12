@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
@@ -8,6 +8,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 import { ChangePasswordComponent } from './change-password/change-password.component';
 import { ApproveUserComponent } from './approve-user/approve-user.component';
 import { AllSitesComponent } from './all-sites/all-sites.component';
+import { SiteDetailComponent } from './site-detail/site-detail.component';
 
 import { authGuard } from './auth.guard';
 
@@ -21,16 +22,16 @@ const routes: Routes = [
   {path: 'user/getAllUsers', component: ApproveUserComponent},
   {path: 'user/forgotPassword', component: ForgotPasswordComponent},
   {path: 'user/changePassword', component: ChangePasswordComponent},
-  {path: 'sites/getSite', component: AllSitesComponent}
+  {path: 'sites/getSite', component: AllSitesComponent},
+  {path: 'siteDetails/:id', component: SiteDetailComponent}
 
   ],
   canActivate: [authGuard]
 },
 
-{path: 'user/getAllUsers', component: ApproveUserComponent},
+
 {path: 'user/forgotPassword', component: ForgotPasswordComponent},
 {path: 'user/changePassword', component: ChangePasswordComponent},
-{path: 'sites/getSite', component: AllSitesComponent},
 {path: 'login', component: LoginComponent},
 {path: 'register', component: RegisterComponent},
 {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -41,4 +42,19 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule { 
+  constructor(private router: Router) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        console.log('NavigationStart:', event);
+      } else if (event instanceof NavigationEnd) {
+        console.log('NavigationEnd:', event);
+      } else if (event instanceof NavigationCancel) {
+        console.log('NavigationCancel:', event);
+      } else if (event instanceof NavigationError) {
+        console.log('NavigationError:', event);
+      }
+      // Add other events as needed
+    });
+  }
+}

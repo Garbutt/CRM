@@ -1,0 +1,49 @@
+
+
+<!-- <div class="site-details">
+   <article>
+    <img *ngIf="site?.photoPath" [src]="site?.photoPath" alt="Site photo">
+   <div class="location"> 
+    <p><strong>Name:</strong> {{site?.name}}</p>
+    <p><strong>Address:</strong> {{site?.address}}</p>
+    <p><strong>Completion:</strong> {{site?.completion}}%</p>
+    <p><strong>Last Assigned:</strong> Reece</p>
+    </div>
+
+   
+
+   
+    
+   </article>
+</div> -->
+
+<div class="card mb-3">
+    <div class="row g-0 align-items-center justify-content-center">
+        <div class="col-md-4 col-12 d-flex justify-content-center">
+            <img class="img-fluid rounded" *ngIf="site?.photoPath" [src]="site?.photoPath" alt="Site photo">
+        </div>
+        <div class="col-md-4 col-10 d-flex justify-content-center">
+            <div class="card-body">
+                <h5 class="card-title">{{site?.name}}</h5>
+                <p class="card-text text-start">{{site?.address}}</p>
+                <p class="card-text text-start">{{site?.completion}}%</p>
+                <p class="card-text text-start"><small class="text-muted">Last assigned: Reece</small></p>
+            </div>
+        </div>
+        <div class="col-md-3 col-12 d-flex justify-content-center">
+            <p-chart type="pie" [data]="data" [options]="options"/>
+        </div>
+    </div>
+    <div class="card-footer mt-3" *ngIf="!activateEdit">
+        <button class="btn btn-primary full-w" (click)="editSite()">Edit Site</button>
+    </div>
+</div>
+
+<div *ngIf="activateEdit">
+    <form *ngIf="site" (ngSubmit)="updateSite">
+        <input type="text" [(ngModel)]="site.name" name="name" *ngIf="userRole === 'admin'" placeholder="Name">
+        <input type="text" [(ngModel)]="site.address" name="address" *ngIf="userRole === 'admin'" placeholder="Address">
+        <input type="number" [(ngModel)]="site.completion" name="completion" placeholder="Completion">
+        <button (click)="updateSite()" type="submit">Update</button>
+    </form>
+   </div>

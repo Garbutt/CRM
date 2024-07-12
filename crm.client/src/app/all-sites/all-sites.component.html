@@ -1,55 +1,79 @@
-<div class="add-site">
 
-    <form action="search" class="search-site">
+
+    <!-- <form action="search" class="search">
         <input type="text" placeholder="Search for a site...">
         <button type="submit">Search</button>
+    </form> -->
+
+    <form class="row justify-content-center" action="search">
+
+        <div class="row">
+            <input type="text" class="form-control" placeholder="Search Sites..." >
+            <button class="btn btn-primary" (click) ="toggleFormVisibility()" style="margin: 0 0 1em 0 ;">
+                Add Site
+            </button>
+        </div>
+
     </form>
 
-    <button (click) ="toggleFormVisibility()">
-        Add Site
-    </button>
-</div>
+  
+<!---Add site form-->
 
-<form class="add-site-form" *ngIf="isFormVisible" #siteForm="ngForm" (ngSubmit)="addSite(siteForm)">
+<form *ngIf="isFormVisible" class="row justify-content-center" #siteForm="ngForm" (ngSubmit)="addSite(siteForm)">
     
     
-    <div class="form-layout">
+    <div class="row">
 
      <label for="name">Site name:</label><br>
-     <input type="text" id="name" [(ngModel)]="newSite.name" name="name" required #siteName = "ngModel"><br>
+     <input class="form-control" type="text" id="name" [(ngModel)]="newSite.name" name="name" required #siteName = "ngModel"><br>
      <div *ngIf="siteName.invalid && siteName.touched" class="error">Site name is required</div>
-
-     <label for="address">Site address:</label><br>
-     <input type="text" id="address" [(ngModel)]="newSite.address" name="address" required #siteAddress="ngModel"><br>
-     <div *ngIf="siteAddress.invalid && siteAddress.touched" class="error">Site address is required</div>
-
-     <label for="image">Site image:</label>
-     <input type="file" id="image" (change)="onFileSelected($event)" #siteImage>
-     
-     <button type="submit">Add</button>
     </div>
+
+    <div class="row">
+     <label for="address">Site address:</label><br>
+     <input class="form-control" type="text" id="address" [(ngModel)]="newSite.address" name="address" required #siteAddress="ngModel"><br>
+     <div *ngIf="siteAddress.invalid && siteAddress.touched" class="error">Site address is required</div>
+    </div>
+
+     <div class="row">
+        <label for="image">Site image:</label>
+     <input class="form-control" type="file" id="image" (change)="onFileSelected($event)">
+     </div>
+     
+     <div class="row just">
+        <div class="col">
+            <button class="btn btn-primary" type="submit">Cancel</button>
+        </div>
+        <div class="col">
+            <button class="btn btn-primary" type="submit">Add</button>
+        </div>
+    </div>
+
     
 </form>
 
-<div class="container" *ngIf="!isFormVisible">
-    <div class="all-sites" *ngFor="let site of _getSites">
-        <article>
-            <img *ngIf="site.photoPath" [src]="site.photoPath" alt="Site image">
-            <div class="site-details">
-                <h2>{{site.name}}</h2>
-                <p>{{site.address}}</p>
-                <p [ngClass]="{
+<!--Display sites-->
+
+<div *ngIf="!isFormVisible" class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col card-group" *ngFor="let site of _getSites">
+        <div class="card h-100">
+            <img *ngIf="site.photoPath" [src]="site.photoPath" class="card-img-top" style="height: 100%; max-height: 220px;" alt="Site image">
+            <div class="card-body">
+                <h5 class="card-title">{{site.name}}</h5>
+                <p class="card-text text-start">{{site.address}}</p>
+                <p class="card-text text-start" [ngClass]="{
                     'red-text': site.completion < 30,
                     'yellow-text': site.completion >= 30 && site.completion < 70,
                     'green-text': site.completion >= 70
                 }">{{site.completion}}% complete</p>
-            </div>
-            <div class="all-sites-button">
-                <button>View Site</button>
-            </div>
-        </article>
-    </div>    
+       </div>
+       <div class="card-footer">
+        <button class="btn btn-primary full-w" (click)="navigateToSiteDetail(site.id)">View Site</button>
+    </div>
+        </div>
+    </div>
 </div>
+
 
 
 

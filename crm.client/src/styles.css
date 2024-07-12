@@ -5,9 +5,17 @@
 @import "primeng/resources/themes/lara-light-blue/theme.css";
 @import "primeng/resources/primeng.css";
 
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+
 *{
     margin: 0;
     padding: 0;
+}
+
+canvas{
+    height: 200px!important;
+    margin: auto 0!important;
 }
 
 body{
@@ -36,8 +44,21 @@ body{
     --site-average-text: 20px;
     --site-average-heading: 40px;
     --site-list-text: 18px;	
-
 }
+
+.card th, .card td{
+    font-size: var(--site-list-text)!important;
+    padding: 1em;
+}
+
+.card{
+    padding: 1em;
+}
+.p-datatable-gridlines, .card th, .card td{
+    border: solid 1px var(--dark-bg);
+}
+
+
 
 h1{
     padding: 1em;
@@ -92,13 +113,6 @@ p{
     padding: 2em;
 }
 
-button{
-    padding: 10px 40px;
-    font-size: 24px;
-    margin: 1em;
-    border-radius: 10px;
-    border: none;
-}
 
 .form-layout{
     display: flex;
@@ -114,4 +128,27 @@ form a{
 }
 
 
-/*Success on form*/
+/*Component actions header*/
+
+.component-actions{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: var(--tp-bg);
+    border: solid 2px var(--dark-bg);
+    height: 80px;
+}
+
+.search{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+}
+
+/*Custom*/
+
+.full-w{
+    width: 100%!important;
+}
+

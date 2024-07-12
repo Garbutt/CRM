@@ -11,6 +11,8 @@ import { TableModule } from 'primeng/table';
 import { Button } from 'primeng/button';
 import { DataViewModule } from 'primeng/dataview';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ChartModule } from 'primeng/chart';
+import { SliderModule } from 'primeng/slider';
 
 
 
@@ -25,6 +27,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { ApproveUserComponent } from './approve-user/approve-user.component';
 import { AllSitesComponent } from './all-sites/all-sites.component';
+import { SiteDetailComponent } from './site-detail/site-detail.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +40,8 @@ import { AllSitesComponent } from './all-sites/all-sites.component';
     LandingPageComponent,
     ApproveUserComponent,
     AllSitesComponent,
+    SiteDetailComponent,
+
   ],
   imports: [
     BrowserModule, 
@@ -47,7 +52,9 @@ import { AllSitesComponent } from './all-sites/all-sites.component';
     FloatLabelModule,
     TableModule,
     Button,
-    DataViewModule
+    DataViewModule,
+    ChartModule,
+    SliderModule,
   ],
   providers: [provideHttpClient(withInterceptorsFromDi())],
   bootstrap: [AppComponent]

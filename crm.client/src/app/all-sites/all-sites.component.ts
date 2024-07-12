@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
 
 export interface Site{
+  id: number;
   name: string;
   address: string;
   completion: number;
@@ -18,13 +20,13 @@ export interface Site{
 export class AllSitesComponent {
    _getSites: Site[] = [];
 
-  newSite: Site = { name: '', address: '', completion: 0};
+  newSite: Site = { id: 0, name: '', address: '', completion: 0};
   sites: Site[] = [];
   isFormVisible: boolean = false;
   selectedFile: File | null = null;
   
 
-  constructor(private http: HttpClient){}
+  constructor(private http: HttpClient, private router: Router){}
 
   ngOnInit(){
     this.getSite();
@@ -62,7 +64,7 @@ export class AllSitesComponent {
         next: (response) =>{
          console.log("Site added successfully.", response);
 
-         this.newSite = { name: '', address: '', completion: 0};
+         this.newSite = {id: 0, name: '', address: '', completion: 0};
          this.selectedFile = null;
          this.getSite(); //Refresh the list of sites
         },error: error =>{
@@ -99,5 +101,10 @@ export class AllSitesComponent {
         console.log("Error getting sites: ", error);
       }
     });
+  }
+
+  navigateToSiteDetail(siteId: number){
+    this.router.navigate([`/dashboard/siteDetails/${siteId}`]);
+    console.log("Navigating to site details for site id: ", siteId);
   }
 }

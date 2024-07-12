@@ -1,36 +1,10 @@
-.page-wrapper{
-    display: flex;
-    flex-direction: row;
-    height: 100%;
-    width: 100%;
+
+nav{
+    background-color: var(--dark-bg)!important;
 }
 
-button{
-    margin: .5em 2em;
-    width: 100%;
+nav a{
+    color: var(--light-bg)!important;
 }
 
-.controls{
-    float: left;
-    align-items: flex-start;
-    background-color: var(--dark-bg);
-}
-
-.controls div{
-    width: auto;
-    display: flex;
-    align-items: center;
-    margin: 2em 0;;
-}
-
-.controls h2{
-    color: var(--text-light);
-    text-align: center;
-    padding: 2em 0 0 0 ;
-}
-
-.router{
-    height: 100%;
-    width: 100%;
-}
 

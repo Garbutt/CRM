@@ -1,19 +1,18 @@
 ﻿using CRM.Server.Models;
 
-
 namespace CRM.Server.Helpers
 {
-    public class isUserAdmin
+    public class AuthorizationHelper
     {
         private readonly ILogger _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public isUserAdmin(ILogger<isUserAdmin> logger, IHttpContextAccessor httpContextAccessor)
+        public AuthorizationHelper(ILogger<AuthorizationHelper> logger, IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
-        public bool checkAdmin()
+        public bool checkAuth()
         {
             var httpContext = _httpContextAccessor.HttpContext;
 
@@ -47,14 +46,7 @@ namespace CRM.Server.Helpers
                 return false;
             }
 
-            if (tokenClaim.role != "admin")
-            {
-                _logger.LogError("User is not an admin");
-                return false;
-            }   
-
             return true;
-
         }
     }
 }

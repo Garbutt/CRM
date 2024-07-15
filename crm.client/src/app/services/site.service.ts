@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Site } from './all-sites/all-sites.component';
+import { Site } from '../all-sites/all-sites.component';
 import { Observable } from 'rxjs';
 
 @Injectable({

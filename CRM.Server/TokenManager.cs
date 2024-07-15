@@ -56,45 +56,53 @@ namespace CRM.Server
         public static TokenClaim ValidateToken(string token, ILogger logger)
         {
 
-            if (string.IsNullOrEmpty(token))
-            {
-                logger.LogError("Token is empty ");
-                return null;
-            }
-
-            ClaimsPrincipal principal = GetPrincipal(token);
-            if (principal == null)
-            {
-                logger.LogWarning("Principal is null");
-                return null;
-            }
-            ClaimsIdentity identity = null;
             try
             {
-                identity = (ClaimsIdentity)principal.Identity;
+                if (string.IsNullOrEmpty(token))
+                {
+                    logger.LogError("Token is empty ");
+                    return null;
+                }
+
+                ClaimsPrincipal principal = GetPrincipal(token);
+                if (principal == null)
+                {
+                    logger.LogWarning("Principal is null");
+                    return null;
+                }
+                ClaimsIdentity identity = null;
+                try
+                {
+                    identity = (ClaimsIdentity)principal.Identity;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Identity is null");
+                    return null;
+                }
+                // Initialize new TokenClaim object
+                TokenClaim tokenClaim = new TokenClaim();
+
+                var emailClaim = identity.FindFirst(ClaimTypes.Email);
+                var roleClaim = identity.FindFirst(ClaimTypes.Role);
+
+                if (emailClaim != null && roleClaim != null)
+                {
+                    tokenClaim.email = emailClaim.Value;
+                    tokenClaim.role = roleClaim.Value;
+                }
+                else
+                {
+                    logger.LogWarning("Email or role claim is null");
+                    return null;
+                }
+                return tokenClaim;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                logger.LogError("Identity is null");
+                logger.LogError("Error in ValidateToken: " + ex.Message);
                 return null;
             }
-            // Initialize new TokenClaim object
-            TokenClaim tokenClaim = new TokenClaim();
-            
-            var emailClaim = identity.FindFirst(ClaimTypes.Email);
-            var roleClaim = identity.FindFirst(ClaimTypes.Role);
-           
-            if(emailClaim != null && roleClaim != null)
-            {
-                tokenClaim.email = emailClaim.Value;
-                tokenClaim.role = roleClaim.Value;
-            }
-            else
-            {
-                logger.LogWarning("Email or role claim is null");
-                return null;
-            }
-            return tokenClaim;
         }
     }
 }

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Site } from '../all-sites/all-sites.component';
-import { SiteService } from '../site.service';
+import { SiteService } from '../services/site.service';
 import { NgClass } from '@angular/common';
-import { AuthService } from '../auth.service';
+import { RoleService } from '../services/role.service';
 
 @Component({
   selector: 'app-site-detail',
@@ -19,8 +19,11 @@ export class SiteDetailComponent implements OnInit {
   activateEdit: boolean = false;
   value: number = this.site?.completion ?? 0;
 
+  successMessage: string = '';
+  errorMessage: string = '';
 
-  constructor(private route: ActivatedRoute, private siteService: SiteService, private authService: AuthService) { }
+
+  constructor(private route: ActivatedRoute, private siteService: SiteService, private roleService: RoleService) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -67,12 +70,13 @@ export class SiteDetailComponent implements OnInit {
         });
       }
     });
-    this.userRole = this.authService.getUserRole();
+    this.userRole = this.roleService.getUserRole();
   }
 
   onFileSelected(event: any): void {
     this.selectedFile= event.target.files[0];
     console.log(this.selectedFile);
+    this.successMessage = 'Image successfully uploaded';
   }
 
   editSite(): void {
@@ -85,12 +89,16 @@ export class SiteDetailComponent implements OnInit {
       this.siteService.updateSite(this.site, this.selectedFile).subscribe({
         next: (response) => 
           {console.log('Site updated successfully', response),
+          this.successMessage = 'Site updated successfully';
         this.siteService.getSiteById(siteId).subscribe({
        next: (updatedSite) => {
           this.site = updatedSite;
           this.activateEdit = false;
           },
-          error: (error) => console.log('Error updating site', error)
+          error: (error) => {
+            this.errorMessage = 'Error updating site';
+            console.log('Error updating site', error);
+          }
         });
       },
         error: (error) => console.log('Error updating site', error)

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System.Security.Policy;
+using CRM.Server.Helpers;
 
 
 
@@ -18,14 +19,18 @@ namespace CRM.Server.Controllers
         private readonly CMSDbContext _context;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<UserController> _logger;
+        private readonly isUserAdmin _adminCheck;
+        private readonly AuthorizationHelper _authHelper;
 
         Response response = new Response();
 
-        public UserController(CMSDbContext context, IWebHostEnvironment environment, ILogger<UserController> logger)
+        public UserController(CMSDbContext context, IWebHostEnvironment environment, ILogger<UserController> logger, isUserAdmin adminCheck, AuthorizationHelper authHelper)
         {
             _context = context;
             _environment = environment;
             _logger = logger;
+            _adminCheck = adminCheck;
+            _authHelper = authHelper;
         }
 
         [HttpPost, Route("signup")]
@@ -105,34 +110,10 @@ namespace CRM.Server.Controllers
             try
             {
 
-                string? authorizationHeader = Request.Headers["authorization"].FirstOrDefault();
-
-                if (string.IsNullOrEmpty(authorizationHeader))
+               if(!_adminCheck.checkAdmin())
                 {
-                    _logger.LogError("Headers are empty");
-                    return Unauthorized(new { message = "Headers are empty" });
-                }
-
-             if(!authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogError("Token does not start with bearer");
-                    return Unauthorized(new { message = "Token does not start with bearer" });
-                }
-
-             var token = authorizationHeader.Substring("Bearer ".Length).Trim();
-
-                TokenClaim tokenClaim = TokenManager.ValidateToken(token, _logger);
-
-                if(tokenClaim == null)
-                {
-                    _logger.LogError("Token is null here.");
-                    return Unauthorized(new { message = "Invalid token" });
-                }
-
-                if (tokenClaim.role != "admin")
-                {
-                    _logger.LogError("Admin role required to get all users.");
-                    return Unauthorized(new { message = "Admin role required" });
+                    _logger.LogError("User is not an admin");
+                    return Unauthorized(new { message = "User is not an admin" });
                 }
 
                 var users = _context.Users.ToList();
@@ -154,23 +135,24 @@ namespace CRM.Server.Controllers
 
         [HttpPost, Route("updateUserStatus")]
         [CustomAuthenticationFilter]
-        public IActionResult UpdateUserStatus(User user)
+        public IActionResult UpdateUserStatus([FromBody]UpdateUserStatusModel update)
         {
+            _logger.LogInformation($"Update user status called for userId: {update.id}");
             try
             {
-                var token = Request.Headers["authorization"].First();
-                TokenClaim tokenClaim = TokenManager.ValidateToken(token, _logger);
-                if (tokenClaim.role != "admin")
+                if(!_adminCheck.checkAdmin())
                 {
-                    return Unauthorized();
+                    _logger.LogError("User is not an admin");
+                    return Unauthorized(new { message = "User is not an admin" });
                 }
-                User userObj = _context.Users.Find(user.Id);
+
+                User? userObj = _context.Users.Find(update?.id);
                 if (userObj == null)
                 {
                     response.Message = "User id is not found";
-                    return BadRequest(Response);
+                    return BadRequest(response);
                 }
-                userObj.status = user.status;
+                userObj.status = update.status;
                 _context.Entry(userObj).State = EntityState.Modified;
                 _context.SaveChanges();
                 response.Message = "User status updated successfully";

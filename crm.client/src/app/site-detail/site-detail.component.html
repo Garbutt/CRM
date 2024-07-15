@@ -1,26 +1,22 @@
 
+<!---Alerts-->
 
-<!-- <div class="site-details">
-   <article>
-    <img *ngIf="site?.photoPath" [src]="site?.photoPath" alt="Site photo">
-   <div class="location"> 
-    <p><strong>Name:</strong> {{site?.name}}</p>
-    <p><strong>Address:</strong> {{site?.address}}</p>
-    <p><strong>Completion:</strong> {{site?.completion}}%</p>
-    <p><strong>Last Assigned:</strong> Reece</p>
+<div class="alert alert-danger alert-dismissable fade show align-items-center" role="alert" *ngIf="errorMessage">
+    {{ errorMessage }}
+     <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-   
+    <div class="alert alert-success alert-dismissable fade show align-items-center" role="alert" *ngIf="successMessage">
+        {{ successMessage }}
+         <button class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
-   
-    
-   </article>
-</div> -->
+        <!--Site Details-->
 
 <div class="card mb-3">
     <div class="row g-0 align-items-center justify-content-center">
-        <div class="col-md-4 col-12 d-flex justify-content-center">
-            <img class="img-fluid rounded" *ngIf="site?.photoPath" [src]="site?.photoPath" alt="Site photo">
+        <div class="col-md-4 col-12 d-flex align-items-center justify-content-center">
+            <img class="img-fluid rounded m-0" *ngIf="site?.photoPath" [src]="site?.photoPath" alt="Site photo">
         </div>
         <div class="col-md-4 col-10 d-flex justify-content-center">
             <div class="card-body">
@@ -39,11 +35,37 @@
     </div>
 </div>
 
-<div *ngIf="activateEdit">
-    <form *ngIf="site" (ngSubmit)="updateSite">
-        <input type="text" [(ngModel)]="site.name" name="name" *ngIf="userRole === 'admin'" placeholder="Name">
-        <input type="text" [(ngModel)]="site.address" name="address" *ngIf="userRole === 'admin'" placeholder="Address">
-        <input type="number" [(ngModel)]="site.completion" name="completion" placeholder="Completion">
-        <button (click)="updateSite()" type="submit">Update</button>
-    </form>
+<!---Edit Controls-->
+
+<div class="row justify-content-center no-padding" *ngIf="activateEdit">
+    <div class="row no-padding" *ngIf="site" (ngSubmit)="updateSite">
+
+        <div class="col-md-4 col-sm-12 g-1" *ngIf="userRole === 'admin'" >
+            <label class="text-start" for="siteName">Site Name:</label>
+            <input class="form-control" type="text" [(ngModel)]="site.name" name="name" placeholder="site.name">
+        </div>
+        <div class="col-md-4 col-sm-12 g-1" *ngIf="userRole != 'admin'" >
+            <label class="text-start" for="siteName">Site Name:</label>
+            <input class="form-control" type="text" [(ngModel)]="site.name" name="name" placeholder="site.name" disabled>
+        </div>
+
+        <div class="col-md-4 col-sm-12 g-1" *ngIf="userRole === 'admin'" >
+            <label class="text-start" for="siteName">Site Address:</label>
+            <input class="form-control" type="text" [(ngModel)]="site.address" name="address" placeholder="site.address">
+        </div>
+        <div class="col-md-4 col-sm-12 g-1" *ngIf="userRole != 'admin'">
+            <label class="text-start" for="siteName">Site Address:</label>
+            <input class="form-control" type="text" [(ngModel)]="site.address" name="address"  placeholder="site.address" disabled>
+        </div>
+
+        <div class="col-md-4 col-sm-12 g-1">
+            <label class="text-start" for="siteName">Site Completion:</label>
+            <input class="form-control" type="number" [(ngModel)]="site.completion" name="completion" placeholder="Completion">
+        </div>
+
+        <div class="full-w no-padding mt-3">
+            <button class="btn btn-primary full-w" (click)="updateSite()" type="submit">Update</button>
+        </div>
+
+    </div>
    </div>

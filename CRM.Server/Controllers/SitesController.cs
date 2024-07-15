@@ -80,8 +80,8 @@ namespace CRM.Server.Controllers
 
                     var site = new Sites
                     {
-                        name = siteDTO.name,
-                        address = siteDTO.address,
+                        name = siteDTO.name ?? "",
+                        address = siteDTO.address ?? "",
                         completion = siteDTO.completion,
                         PhotoPath = relativePath
                     };

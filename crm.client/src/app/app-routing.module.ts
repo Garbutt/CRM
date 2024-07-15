@@ -44,17 +44,6 @@ const routes: Routes = [
 })
 export class AppRoutingModule { 
   constructor(private router: Router) {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationStart) {
-        console.log('NavigationStart:', event);
-      } else if (event instanceof NavigationEnd) {
-        console.log('NavigationEnd:', event);
-      } else if (event instanceof NavigationCancel) {
-        console.log('NavigationCancel:', event);
-      } else if (event instanceof NavigationError) {
-        console.log('NavigationError:', event);
-      }
-      // Add other events as needed
-    });
+   
   }
 }
